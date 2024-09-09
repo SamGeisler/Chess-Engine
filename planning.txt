@@ -1,0 +1,127 @@
+Optimizations to make:
+- Create an unexcute move function, instead of copying board and metadata
+- Keep track of king position in board_md to avoid looping over board to find him
+
+Board State Representation:
+Global variables:
+int board[63] - Indices kind of backwards: 0 = a8, 63 = h1
+    - Values: 0 for empty square, color+ piece type fr occupied
+        - color = 8 for white, 16 for black
+        - piece type: 1 = pawn, 2 = bishop, 3 = knight, 4 = rook, 5 = queen, 6 = king
+        - eg. 01 010 = white bishop
+unsigned short int castle_flags = 15, e.g. 0101: White KS, white QS, black KS, black QS. 1 if possible
+int ep_right = -1; = available enpassant target square (e.g. e3 = 52 for the move after e4)
+fm_count = 0; each time a passing move is made, increases. The board state is evaluated as a draw as soon as this reaches 100.
+to_move = 0 for white, 1 for black
+FOR NOW: board position repetition will not be considered.
+
+
+Main Control and Rendering:
+Global variables: 
+- AI_COLOR = 0 or 1;
+- MAXDEPTH = whatever;
+
+move struct:
+{
+    - starting square
+    - ending square
+    - pawn promotion: 2 = bishop, 3 = knight, 4 = rook, 5 = queen, 0 = n/a
+    - reset 50 move counter flag
+    - New enpassant right square (zero if none or one being deleted)
+    - castle_flags change: 0000, 1 if that option is deleted, e.g. black knight captures white QS rook = 0100
+}
+
+void execute(move){
+    change board and metadata variables according to move
+    no verification that the move is legal
+    if fifty move rule reached, call fmr_game_over()
+}
+
+fmr_game_over(){
+    generate_moves()
+    if empty, checkmate game over, else stalemate game over
+}
+
+main function:
+    - setup board
+    
+    if AI_COLOR == white;
+        - ai_move
+    while(!game_over){
+        - player_move
+        - ai_move
+    }
+
+    Player_move:
+        - generate_moves
+            if empty, game_over
+        - get_player_move_request()
+        - if get_player_move_request() matches any member of generate_moves ()
+            (i.e. starting square, ending_square, and pawn promotion match something)
+            execute that move
+        - execute_move()
+        - render_board(-1)
+    
+    Ai_move:
+        - execute(get_ai_move)
+        - render_board (-1)
+
+get_player_move_request(){
+    - waits in a loop for a player to try to make a move (starting square, ending square, and pawn promotion are selected)
+        - Board is rendered with holding somethings not -1 inside this loop.
+    - returns move struct with blank info for MD updates
+}
+
+render_board(holding){
+    - holding = -1 for nothing or board index for something
+    - render board according to board array
+    - render held piece at mouse x and mouse y
+}
+
+
+AI Move Generation Routine:
+
+int is_in_check(player (= -1 or 1)){
+    Use some intelligent looping technique to check if the pla
+}
+
+generate_moves(int*){
+    generates all possible fully legal moves and stores them at the given location (to be freed by evaluation function)
+    - is_in_check is called after each move generated, and removed if returns 1
+    - empty generate_moves list indicates end of the game (no reaction in this function)
+}
+
+end_eval(){
+    evaluate board state once depth reaches zero (assumes not a draw or checkmate)
+    for now will just compare values of the pieces
+}
+
+eval(depth){
+    - if fmr rule reached - return 0;
+    - Allocate memory
+    - call generate_moves
+        - if empty, return eval corresponding to winner
+    - if depth limit reached (we know no win or draw has occured), free memory and return end_eval()
+    else, search possible moves
+        - Loop through each member of generated move list
+            - store backup board state & metadata
+            - Execute move
+            - eval(depth-1)
+            - Revert board state
+        - free memory
+        - Return the optimal evalution
+}
+
+Get_ai_move(){
+    - allocate memory
+    - call generate_moves
+        if empty, game_over = 1 and return;
+    - Loop through each member of generated move list
+        - backup metadata & board
+        - execute move
+        - eval(depth-1)
+        - revert board state
+        - Find move associated with maximum or minimum eval(), depending on AI_COLOR
+    - free memory
+    - execute move 
+}
