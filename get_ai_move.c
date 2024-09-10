@@ -17,7 +17,7 @@ move get_ai_move(int ai_color){
         quit_game(1-ai_color);
     } else {
         move optimal_move;
-        double optimal_eval = 1-(2*ai_color) * 1000000.0;
+        double optimal_eval = (1-(2*ai_color)) * 1000000.0;
 
         int bup_board[64];
         Metadata bup_md;
@@ -29,6 +29,7 @@ move get_ai_move(int ai_color){
             memcpy(bup_board,board,64*sizeof(int));
             bup_md = board_md;
 
+            
             execute_move(moves[i]);
             new_eval = eval(1-ai_color,1,MAXDEPTH);
 

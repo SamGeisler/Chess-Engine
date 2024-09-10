@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
@@ -12,25 +11,25 @@
 #include "perft.h"
 
 char* address_to_coords(int a);
+enum {WHITE,BLACK};
 
 
 int main(int argc, char* argv[]){
+    debug_flag = 0;
     srand(time(NULL));
 
-    //initialize board array & metadata
-    init_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ");
-
+    //initialize board array & metadata (initiali pos: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1)
+    init_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+   
     //initialize rendering
     render_init();
     render_board(-1);
-
     int quit = 0;
-    if(!AICOLOR){
+    if(AICOLOR==WHITE){
         execute_move(get_ai_move(AICOLOR));
         render_board(-1);
     }
     while(!quit){
-        
         execute_move(get_player_move(1-AICOLOR));
         render_board(-1);
         

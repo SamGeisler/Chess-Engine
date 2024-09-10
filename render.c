@@ -3,10 +3,6 @@
 #include <stdio.h>
 #include "SDL2/SDL.h"
 
-
-
-
-
 SDL_Window* window = NULL;
 SDL_Surface* screen_surface = NULL;
 SDL_Surface* current_surface = NULL;
@@ -64,7 +60,7 @@ void render_init(){
     screen_surface = SDL_GetWindowSurface(window);
 
 
-    //number_surface = load_surface("img/board_ss.bmp");
+    number_surface = load_surface("img/board_ss.bmp");
     current_surface = load_surface("img/base.bmp");
     load_piece_surfaces();
 }
@@ -72,10 +68,19 @@ void render_init(){
 //public
 void render_board(int holding){
     draw_background();
-    for(int i = 0; i<64; i++){
-        if(board[i] && (holding==-1 || i!=holding)){
-            SDL_Rect loc_rect = {XMARG + PS*(i%8), YMARG + PS*(i/8), PS, PS};
-            SDL_BlitScaled(piece_surfaces[board[i]], NULL, current_surface, &loc_rect);
+    if(AICOLOR==1){
+        for(int i = 0; i<64; i++){
+            if(board[i] && (holding==-1 || i!=holding)){
+                SDL_Rect loc_rect = {XMARG + PS*(i%8), YMARG + PS*(i/8), PS, PS};
+                SDL_BlitScaled(piece_surfaces[board[i]], NULL, current_surface, &loc_rect);
+            }
+        }
+    } else {
+        for(int i = 0; i<64; i++){
+            if(board[63-i] && (holding==-1 || 63-i!=holding)){
+                SDL_Rect loc_rect = {XMARG + PS*(i%8), YMARG + PS*(i/8), PS, PS};
+                SDL_BlitScaled(piece_surfaces[board[63-i]], NULL, current_surface, &loc_rect);
+            }
         }
     }
     if(holding != -1){

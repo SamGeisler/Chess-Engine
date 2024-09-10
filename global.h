@@ -1,5 +1,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
+#include <stdio.h>
 
 #define SWIDTH 1200
 #define SHEIGHT 800
@@ -28,10 +29,6 @@ typedef struct{
 
 Metadata board_md;
 
-//move counter
-//enpassant tracker
-//to_move (?)
-
 typedef struct{
     short int src;
     short int dest;
@@ -44,6 +41,7 @@ typedef struct{
 int game_over;
 int print_time;
 
+int debug_flag;
 
 void quit_game(int winning_color);
 void init_board(char* board_init);

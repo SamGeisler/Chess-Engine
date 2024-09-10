@@ -13,10 +13,15 @@ double piece_values[] = {1.00, 3.20, 3.00, 5.00, 9.00};
 double eval(int to_move, int depth, int max_depth){
     move* moves = (move*)malloc(220*sizeof(move)); int num_moves;
     generate_moves(moves, &num_moves,to_move);
+
+    
+
+    //the ai should prioritize checkmating earlier
     if(num_moves == 0){
         if(is_in_check(to_move)){
             free(moves);
-            return (2*to_move-1)*1000000.0;
+            double depth_mod = (max_depth-depth)*0.00001;
+            return (1-2*to_move)*(1000000.0+depth_mod);
         } else{
             free(moves);
             return 0;
@@ -27,7 +32,7 @@ double eval(int to_move, int depth, int max_depth){
             return end_eval(to_move);
         } else{
             move optimal_move;
-            double optimal_eval = 1-(2*to_move) * 1000000.0;
+            double optimal_eval = (1-(2*to_move)) * 1000000.0;
 
             int bup_board[64];
             Metadata bup_md;
@@ -38,6 +43,7 @@ double eval(int to_move, int depth, int max_depth){
 
                 execute_move(moves[i]);
                 new_eval = eval(1-to_move,depth+1,max_depth);
+
 
                 if(to_move==0){//white
                     if(new_eval < optimal_eval){
@@ -50,7 +56,6 @@ double eval(int to_move, int depth, int max_depth){
                         optimal_eval = new_eval;
                     }
                 }
-
                 memcpy(board,bup_board,64*sizeof(int));
                 board_md = bup_md;
             }

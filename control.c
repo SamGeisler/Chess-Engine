@@ -36,6 +36,7 @@ move get_player_move(int color){
             } else if(e.type == SDL_MOUSEBUTTONDOWN){
                 if(holding != -1) continue;
                 holding = 8 * ((my - YMARG)/PS)  +  ( (mx - XMARG)/PS );
+                if(AICOLOR == 0) holding = 63-holding;
 
             //release mouse
             } else if (e.type==SDL_MOUSEBUTTONUP){
@@ -44,6 +45,7 @@ move get_player_move(int color){
                 //mouse in range
                 if(mx > XMARG && mx < XMARG + 8*PS && my > YMARG && my < YMARG + 8*PS){
                     int newpos = 8 * ((my - YMARG)/PS)  +  ( (mx - XMARG)/PS );
+                    if(AICOLOR == 0) newpos = 63-newpos;
 
                     //user didn't just drop the piece down in the same square
                     if(holding != newpos){
@@ -95,7 +97,8 @@ void print_moves(move* loc, int num){
 
 
 void execute_move(move m){
-    //update king position metadat
+    if(debug_flag) printf("1");
+    //update king position metadata
     if(board[m.src]==14){
         board_md.wk_pos = m.dest;
     } else if(board[m.src]==22){
@@ -110,6 +113,7 @@ void execute_move(move m){
     } else {
         board[m.dest] = (board[m.src]/8)*8 + m.pawn_promotion;
     }
+
 
     //enpassant
     if(board[m.src]%8==1 && board_md.ep_right!= 0 && m.dest==board_md.ep_right){
@@ -130,15 +134,17 @@ void execute_move(move m){
     if(m.src==56 || m.dest==56) board_md.castle_flags &= ~4;
     if(m.src==63 || m.dest==63) board_md.castle_flags &= ~8;
 
+
     //update en passant right according to move data
     board_md.ep_right = m.ep_right_square;
     
     //update of revert fifty move rule counter
     if(m.reset_fmc_flag) board_md.fmr_count = 0;
     else board_md.fmr_count++;
-    
     //clear source position
     board[m.src] = 0;
+
+    
 
     //move rook for castle_moves
     if(board[m.dest]%8==6){
