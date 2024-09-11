@@ -18,8 +18,11 @@ int main(int argc, char* argv[]){
     debug_flag = 0;
     srand(time(NULL));
 
+
+    run_test_suite();
     //initialize board array & metadata (initiali pos: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1)
     init_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
    
     //initialize rendering
     render_init();
@@ -142,4 +145,28 @@ char* address_to_coords(int a){
     rv[0] = 'a' + a%8;
     rv[1] = '8'- a/8;
     return rv;
+}
+
+void print_board(){
+    for(int i = 0; i<64; i++){
+        char c;
+        switch(board[i]){
+            case 9: c = 'P'; break;
+            case 10: c = 'B'; break;
+            case 11: c = 'N'; break;
+            case 12: c = 'R'; break;
+            case 13: c = 'Q'; break;
+            case 14: c = 'K'; break;
+            case 17: c = 'p'; break;
+            case 18: c = 'b'; break;
+            case 19: c = 'n'; break;
+            case 20: c = 'r'; break;
+            case 21: c = 'q'; break;
+            case 22: c = 'k'; break;
+            case 0: c = '-'; break;
+            default: c = '!';
+        }
+        printf("%c ",c);
+        if(i%8==7) printf("\n");
+    }
 }

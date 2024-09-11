@@ -10,7 +10,7 @@
 #include "perft.h"
 
 
-void run_test_suite(int max_depth){
+void run_test_suite(){
     int test_succesful = 1;
     FILE* fh = fopen("perftsuite.txt","r");
     if(fh==NULL){
@@ -39,7 +39,7 @@ void run_test_suite(int max_depth){
             int k = 0;
             while(1){
                 c = fgetc(fh);
-                if(c=='\n' || c==' '){
+                if(c=='\n' || c==' ' || c==EOF){
                     evals_text[j][k] = '\0';
                     break;
                 }
@@ -59,7 +59,7 @@ void run_test_suite(int max_depth){
 
         init_board(fen);
         printf("board %d:",i+1);
-        for(int j = 1; j<= max_depth; j++){
+        for(int j = 1; j<= 6; j++){
             int p = perft(1,j,board_md.to_move);
             if(evals[j-1]!=p) test_succesful = 0;
             printf(" %d",evals[j-1]==p);
@@ -93,14 +93,16 @@ int perft(int depth, int ending_depth, int color){
         Metadata bup_md;
         for(int i = 0; i<num_moves; i++){
             
-            memcpy(bup_board,board,64*sizeof(int));
             bup_md = board_md;
 
             execute_move(moves[i]);
 
+
             total += perft(depth+1, ending_depth, 1-color);
 
-            memcpy(board,bup_board,64*sizeof(int));
+            unexecute_move(moves[i]);
+
+
             board_md = bup_md;
         }
         free(moves);

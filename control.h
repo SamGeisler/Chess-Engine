@@ -4,5 +4,6 @@
 
 move get_player_move(int color);
 void execute_move(move m);
+void unexecute_move(move m);
 
 #endif

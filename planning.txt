@@ -1,6 +1,17 @@
-Optimizations to make:
-- Create an unexcute move function, instead of copying board and metadata
-- Keep track of king position in board_md to avoid looping over board to find him
+TODO:
+- Alpha-beta pruning
+- Capture/check search extension
+- Time-based evaluation depth
+- Endgame evaluation modification
+- Transposition table
+- Update rendering to SDL2 Hardware routines
+- Pawn promotion choice pop-up
+- Piece-square evaluation tables
+- Opening book
+
+DONE:
+- Convert move & metadata struct members to chars
+- Implement unexecute_move
 
 Board State Representation:
 Global variables:

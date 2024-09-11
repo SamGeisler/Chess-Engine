@@ -14,28 +14,30 @@
 #define YMARG ((SHEIGHT - PS*8)/2)
 
 #define AICOLOR 1
-#define MAXDEPTH 3
+#define MAXDEPTH 4
 
 
 unsigned int board[64];
 typedef struct{
-    unsigned short int castle_flags;//1010 - white ks, white qs, black ks, black qs (1 indicates valid)
-    short int ep_right;
-    short int fmr_count;//counts half moves
-    short int to_move;
-    short int wk_pos;
-    short int bk_pos;
+    char castle_flags;//1010 - white ks, white qs, black ks, black qs (1 indicates valid)
+    char ep_right;
+    char fmr_count;//counts half moves
+    char to_move;
+    char wk_pos;
+    char bk_pos;
 } Metadata;
 
 Metadata board_md;
 
 typedef struct{
-    short int src;
-    short int dest;
-    short int pawn_promotion;
-    short int reset_fmc_flag;
-    short int ep_right_square;
-    short int castle_update;//this is not literally correct. If a piece is moving to a rook position, execute_move will update the castling flags, even if this value is zero.
+    char src;
+    char dest;
+    char pawn_promotion;
+    char reset_fmc_flag;
+    char ep_right_square;//square to initiate en passant right for. 0 if none
+    char castle_update;//this is not literally correct. If a piece is moving to a rook position, execute_move will update the castling flags, even if this value is zero.
+    char captured_piece;//piece id of piece captured, 0 if no capture
+    char ep_flag;//flag if this move is an en passant, used for unexecute_move
 } move;
 
 int game_over;

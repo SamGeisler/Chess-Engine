@@ -166,3 +166,45 @@ void execute_move(move m){
     //board_md.fmr_count >= 100, game_over (check for checkmate)
     board_md.to_move = 1-board_md.to_move;
 }
+
+//just reverts board state - metadata is not fixed
+void unexecute_move(move m){
+    //pawn promotion
+    if(m.pawn_promotion){
+        board[m.src] = 8*(board[m.dest]/8) + 1;
+    } else {
+        board[m.src] = board[m.dest];
+    }
+    //enpassant
+    if(m.ep_flag){
+        if(board[m.dest]<16){ //white
+            board[m.dest+8] = 17;
+        } else { //black
+            board[m.dest-8] = 9;
+        }
+        board[m.dest] = 0;
+    } else {
+        board[m.dest] = m.captured_piece;
+    }
+
+    //return rook for castling moves
+    if(m.src==4 && board[m.src]==22){
+        if(m.dest == 2){//black qs
+            board[0] = 20;
+            board[3] = 0;
+        }
+        else if(m.dest == 6){//black ks
+            board[7] = 20;
+            board[5] = 0;
+        }
+    } else if(m.src == 60 && board[m.src]==14){
+        if(m.dest == 58){//white qs
+            board[56] = 12;
+            board[59] = 0;
+
+        } else if(m.dest == 62){//white ks
+            board[63] = 12;
+            board[61] = 0;
+        }
+    }
+}
