@@ -274,13 +274,14 @@ void try_append_move(move m){
     append_move(m);
 }
 
+Metadata backup_metadata;
 void append_move(move m){
     m.captured_piece = board[m.dest];
 
     *move_list_pos = m;
     move_list_pos++;
 
-    Metadata bup_md = board_md;
+    backup_metadata = board_md;
     execute_move(m);
 
 
@@ -293,14 +294,15 @@ void append_move(move m){
 
     unexecute_move(m);
 
-    board_md = bup_md;
+    board_md = backup_metadata;
 }
 
+int oki, oni, obi, ori, oqi;
 int is_in_check(int color_in_check){
     int king_pos = color_in_check ? board_md.bk_pos : board_md.wk_pos;
 
     //check surroundings (adjacent king)
-    int oki = (1-color_in_check)*8+14; //opposite king ID
+    oki = (1-color_in_check)*8+14; //opposite king ID
     if(king_pos>=9 && king_pos%8!=0){
         if(board[king_pos-9]==oki) return 1;
     }
@@ -327,7 +329,7 @@ int is_in_check(int color_in_check){
     }
 
     //check knight positions
-    int oni = (1-color_in_check)*8 + 11; //opposite knight ID
+    oni = (1-color_in_check)*8 + 11; //opposite knight ID
     if(king_pos>=16 && king_pos%8>0){
         if(board[king_pos-17]==oni) return 1;
     }
@@ -354,49 +356,52 @@ int is_in_check(int color_in_check){
     }
 
     //check diagonals
+    obi = (1-color_in_check)*8 + 10;
+    oqi = (1-color_in_check)*8 + 13;
     if(king_pos%8!=0){
         for(int i = king_pos-9; i>=0; i-=9){
-            if(board[i]==(1-color_in_check)*8 + 10 || board[i]==(1-color_in_check)*8 + 13){return 1;}
+            if(board[i]==obi || board[i]==oqi){return 1;}
             if(board[i]) break;
             if(i%8==0) break;
         }
     }
     if(king_pos%8!=7){
         for(int i = king_pos+9; i<64; i+=9){
-            if(board[i]==(1-color_in_check)*8 + 10 || board[i]==(1-color_in_check)*8 + 13){return 1;}
+            if(board[i]==obi || board[i]==oqi){return 1;}
             if(board[i]) break;
             if(i%8==7) break;
         }
     }
     if(king_pos%8!=7){
         for(int i = king_pos-7; i>=0; i-=7){
-            if(board[i]==(1-color_in_check)*8 + 10 || board[i]==(1-color_in_check)*8 + 13){return 1;}
+            if(board[i]==obi || board[i]==oqi){return 1;}
             if(board[i]) break;
             if(i%8==7) break;
         }
     }
     if(king_pos%8!=0)
     for(int i = king_pos+7; i<64; i+=7){
-        if(board[i]==(1-color_in_check)*8 + 10 || board[i]==(1-color_in_check)*8 + 13){return 1;}
+        if(board[i]==obi || board[i]==oqi){return 1;}
         if(board[i]) break;
         if(i%8==0) break;
     }
 
     //check rank & file
+    ori = (1-color_in_check)*8 + 12;
     for(int i = king_pos-8; i>=0; i-=8){
-        if(board[i]==(1-color_in_check)*8 + 12 || board[i]==(1-color_in_check)*8 + 13) return 1;
+        if(board[i]==ori || board[i]==oqi) return 1;
         if(board[i]) break;
     }
     for(int i = king_pos+8; i<64; i+=8){
-        if(board[i]==(1-color_in_check)*8 + 12 || board[i]==(1-color_in_check)*8 + 13) return 1;
+        if(board[i]==ori || board[i]==oqi) return 1;
         if(board[i]) break;
     }
     for(int i = king_pos-1; i/8==king_pos/8; i--){
-        if(board[i]==(1-color_in_check)*8 + 12 || board[i]==(1-color_in_check)*8 + 13) return 1;
+        if(board[i]==ori || board[i]==oqi) return 1;
         if(board[i]) break;
     }
     for(int i = king_pos+1; i/8==king_pos/8; i++){
-        if(board[i]==(1-color_in_check)*8 + 12 || board[i]==(1-color_in_check)*8 + 13) return 1;
+        if(board[i]==ori || board[i]==oqi) return 1;
         if(board[i]) break;
     }
 

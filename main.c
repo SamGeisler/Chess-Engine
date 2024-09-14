@@ -18,8 +18,7 @@ int main(int argc, char* argv[]){
     debug_flag = 0;
     srand(time(NULL));
 
-
-    run_test_suite();
+    
     //initialize board array & metadata (initiali pos: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1)
     init_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 

@@ -1,7 +1,6 @@
 TODO:
-- Alpha-beta pruning
-- Capture/check search extension
-- Time-based evaluation depth
+- Quiescence search
+- Iterative deepening
 - Endgame evaluation modification
 - Transposition table
 - Update rendering to SDL2 Hardware routines
@@ -12,6 +11,9 @@ TODO:
 DONE:
 - Convert move & metadata struct members to chars
 - Implement unexecute_move
+
+ENDGOAL:
+- Achieve an end rating on lichess that is better than 99% of human players in some game format. Right now that appears to be around 2500-2600
 
 Board State Representation:
 Global variables:

@@ -14,7 +14,7 @@
 #define YMARG ((SHEIGHT - PS*8)/2)
 
 #define AICOLOR 1
-#define MAXDEPTH 4
+#define MAXDEPTH 6
 
 
 unsigned int board[64];

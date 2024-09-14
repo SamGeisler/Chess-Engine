@@ -1,0 +1,17 @@
+Quiescence pseudocode:
+
+Quiescence(alpha, beta, to_move){
+    generate_moves()
+    int eval = + or - inf;
+    for(move in moves){
+        if(not is-check-or-capture){
+            continue;
+        } else {
+            normal minimax eval w/ ab pruning
+        }
+    }
+    if (eval = + or - inf){
+        eval = static_eval();
+    }
+    return eval
+}
