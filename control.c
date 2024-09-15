@@ -208,3 +208,28 @@ void unexecute_move(move m){
         }
     }
 }
+
+int move_order_comp( const void* e1, const void* e2){
+    move m1 = *((move*)e1);
+    move m2 = *((move*)e2);
+
+    double m1_val = 0;
+    if(m1.captured_piece){
+        if(board[m1.src]%8==6){
+            m1_val = piece_values[m1.captured_piece%8-1];
+        } else {
+            m1_val = piece_values[m1.captured_piece%8-1] - piece_values[board[m1.src]%8-1];
+        }
+    } else m1_val = -10;
+    double m2_val = 0;
+    if(m2.captured_piece){
+        if(board[m2.src]%8==6){
+            m2_val = piece_values[m2.captured_piece%8-1];
+        } else {
+            m2_val = piece_values[m2.captured_piece%8-1] - piece_values[board[m2.src]%8-1];
+        }
+    } else m2_val = -10;
+    if(m1_val > m2_val) return -1;
+    if(m1_val < m2_val) return 1;
+    return 0;
+}

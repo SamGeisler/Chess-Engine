@@ -15,9 +15,7 @@ void gen_knight_moves(int src);
 void gen_rook_moves(int src);
 void gen_queen_moves(int src);
 void gen_king_moves(int src);
-void append_move(move m);
 void try_append_move(move m);
-int is_in_check(int color_in_check);
 
 char color;
 move* move_list_pos;
@@ -41,6 +39,7 @@ void generate_moves(move* mempos, int* number_moves, int to_move){
         }
     }
     *number_moves = move_list_pos - mempos;
+    qsort(mempos,*number_moves,sizeof(move),move_order_comp);
 }
 
 void gen_queen_moves(int src){
@@ -64,7 +63,7 @@ void gen_king_moves(int src){
         board[60] = 0; board[61] = 14; board_md.wk_pos = 61;
         int no_c_through_check = !is_in_check(0);
         board[60] = 14; board[61] = 0; board_md.wk_pos = 60;
-        if(no_c_through_check) append_move((move){60,62,0,0,0,12,0,0});
+        if(no_c_through_check) append_move((move){60,62,0,0,0,12,0,0},&move_list_pos);
         
     }
 
@@ -73,7 +72,7 @@ void gen_king_moves(int src){
         board[60] = 0; board[59] = 14; board_md.wk_pos = 59;
         int no_c_through_check = !is_in_check(0);
         board[59] = 0; board[60] = 14;  board_md.wk_pos = 60;
-        if(no_c_through_check) append_move((move){60,58,0,0,0,12,0,0});
+        if(no_c_through_check) append_move((move){60,58,0,0,0,12,0,0},&move_list_pos);
         
     }
 
@@ -82,7 +81,7 @@ void gen_king_moves(int src){
         board[5] = 22; board[4] = 0;  board_md.bk_pos = 5;
         int no_c_through_check = !is_in_check(1);
         board[4] = 22; board[5] = 0; board_md.bk_pos = 4;
-        if(no_c_through_check) append_move((move){4,6,0,0,0,3,0,0});
+        if(no_c_through_check) append_move((move){4,6,0,0,0,3,0,0},&move_list_pos);
         
     }
 
@@ -91,7 +90,7 @@ void gen_king_moves(int src){
         board[3]  =22; board[4] = 0; board_md.bk_pos = 3;
         int no_c_through_check = !is_in_check(1);
         board[4] = 22; board[3] = 0; board_md.bk_pos = 4;
-        if(no_c_through_check) append_move((move){4,2,0,0,0,3,0,0});
+        if(no_c_through_check) append_move((move){4,2,0,0,0,3,0,0},&move_list_pos);
 
         
     }
@@ -102,74 +101,74 @@ void gen_pawn_moves(int src){
         //correct position for DPP
         if(src >=48 && src < 56){
             //If room for DPP, DPP
-            if(!board[src-8] && !board[src-16]) append_move((move){src, src-16,0,1,src-8,0,0,0});
+            if(!board[src-8] && !board[src-16]) append_move((move){src, src-16,0,1,src-8,0,0,0},&move_list_pos);
         }
 
         //En passant
         if(board_md.ep_right<24 && src>16 && (src == board_md.ep_right+7 || src==board_md.ep_right+9)){
             //avoid edge wrap-around
-            if(board_md.ep_right/8 == src/8 - 1) append_move((move){src, board_md.ep_right, 0,1,0,0,0,1});
+            if(board_md.ep_right/8 == src/8 - 1) append_move((move){src, board_md.ep_right, 0,1,0,0,0,1},&move_list_pos);
         }
 
         //promotion
         if(src<16){
             //push
             if(!board[src-8]){
-                for(int promo_piece = 2; promo_piece <=5; promo_piece++) append_move((move){src,src-8, promo_piece, 1, 0, 0,0,0});
+                for(int promo_piece = 2; promo_piece <=5; promo_piece++) append_move((move){src,src-8, promo_piece, 1, 0, 0,0,0},&move_list_pos);
             }
 
             //capture
             if(src%8 != 7 && board[src-7] && board[src-7] > 16){
-                for(int promo_piece = 2; promo_piece <= 5; promo_piece++) append_move((move){src,src-7, promo_piece, 1, 0, 0,0,0});
+                for(int promo_piece = 2; promo_piece <= 5; promo_piece++) append_move((move){src,src-7, promo_piece, 1, 0, 0,0,0},&move_list_pos);
             }
             if(src %8 != 0 && board[src-9] && board[src-9] > 16){
-                for(int promo_piece = 2; promo_piece <= 5; promo_piece++) append_move((move){src,src-9, promo_piece, 1, 0, 0,0,0});
+                for(int promo_piece = 2; promo_piece <= 5; promo_piece++) append_move((move){src,src-9, promo_piece, 1, 0, 0,0,0},&move_list_pos);
             }
         //non promotion
         } else {
             //push
-            if(!board[src-8]) append_move((move){src, src-8, 0, 1, 0, 0,0,0});
+            if(!board[src-8]) append_move((move){src, src-8, 0, 1, 0, 0,0,0},&move_list_pos);
 
             //capture
-            if( src%8!=7 && board[src-7] && board[src-7] >16) append_move((move){src,src-7, 0, 1, 0, 0,0,0});
-            if( src%8 != 0 && board[src-9] && board[src-9] > 16) append_move((move){src,src-9, 0, 1, 0, 0,0,0});
+            if( src%8!=7 && board[src-7] && board[src-7] >16) append_move((move){src,src-7, 0, 1, 0, 0,0,0},&move_list_pos);
+            if( src%8 != 0 && board[src-9] && board[src-9] > 16) append_move((move){src,src-9, 0, 1, 0, 0,0,0},&move_list_pos);
         }
     } else {
         //correct position for DPP
         if(src >=8 && src < 16){
             //If room for DPP, DPP
             if(!board[src+8] && !board[src+16]){
-                append_move((move){src, src+16,0,1,src+8,0,0,0});
+                append_move((move){src, src+16,0,1,src+8,0,0,0},&move_list_pos);
             }
         }
 
         //En passant
         if(board_md.ep_right>=40 && (src == board_md.ep_right-7 || src==board_md.ep_right-9)){
             //avoid board wrap-around
-            if(board_md.ep_right/8 == src/8+1) append_move((move){src, board_md.ep_right, 0,1,0,0,0,1});
+            if(board_md.ep_right/8 == src/8+1) append_move((move){src, board_md.ep_right, 0,1,0,0,0,1},&move_list_pos);
         }
 
         //promotion
         if(src>=48){
             //push
             if(!board[src+8]){
-                for(int promo_piece = 2; promo_piece <=5; promo_piece++) append_move((move){src,src+8, promo_piece, 1, 0, 0,0,0});
+                for(int promo_piece = 2; promo_piece <=5; promo_piece++) append_move((move){src,src+8, promo_piece, 1, 0, 0,0,0},&move_list_pos);
             }
             //capture
             if(src%8 != 0 && board[src+7] && board[src+7]<16){
-                for(int promo_piece = 2; promo_piece <= 5; promo_piece++) append_move((move){src,src+7, promo_piece, 1, 0, 0,0,0});
+                for(int promo_piece = 2; promo_piece <= 5; promo_piece++) append_move((move){src,src+7, promo_piece, 1, 0, 0,0,0},&move_list_pos);
             }
             if(src%8 != 7 && board[src+9] && board[src+9]<16){
-                for(int promo_piece = 2; promo_piece <= 5; promo_piece++) append_move((move){src,src+9, promo_piece, 1, 0, 0,0,0});
+                for(int promo_piece = 2; promo_piece <= 5; promo_piece++) append_move((move){src,src+9, promo_piece, 1, 0, 0,0,0},&move_list_pos);
             }
         //non-promotion
         } else {
             //push
-            if(!board[src+8]) append_move((move){src, src+8, 0, 1, 0, 0,0,0});
+            if(!board[src+8]) append_move((move){src, src+8, 0, 1, 0, 0,0,0},&move_list_pos);
 
             //capture
-            if(src%8 != 0 && board[src+7] && board[src+7]<16) append_move((move){src,src+7, 0, 1, 0, 0,0,0});
-            if(src%8 != 7 && board[src+9] && board[src+9]<16) append_move((move){src,src+9, 0, 1, 0, 0,0,0});
+            if(src%8 != 0 && board[src+7] && board[src+7]<16) append_move((move){src,src+7, 0, 1, 0, 0,0,0},&move_list_pos);
+            if(src%8 != 7 && board[src+9] && board[src+9]<16) append_move((move){src,src+9, 0, 1, 0, 0,0,0},&move_list_pos);
         }
     }
 }
@@ -179,11 +178,11 @@ void gen_bishop_moves(int src){
         for(int i = src-9; ; i-=9){
             if(i<0) break;
             if(board[i]){
-                if(board[i] > 16 && color == 'w') append_move((move){src, i, 0, 1, 0, 0,0,0});
-                else if(board[i] < 16 && color == 'b') append_move((move){src, i, 0, 1, 0, 0,0,0});
+                if(board[i] > 16 && color == 'w') append_move((move){src, i, 0, 1, 0, 0,0,0},&move_list_pos);
+                else if(board[i] < 16 && color == 'b') append_move((move){src, i, 0, 1, 0, 0,0,0},&move_list_pos);
                 break;
             }
-            append_move((move){src,i,0,0,0,0,0,0});
+            append_move((move){src,i,0,0,0,0,0,0},&move_list_pos);
             if(i%8==0) break;
         }
     }
@@ -191,11 +190,11 @@ void gen_bishop_moves(int src){
         for(int i = src+9; ; i+=9){
             if(i>63) break;
             if(board[i]){
-                if(board[i] > 16 && color == 'w') append_move((move){src, i, 0, 1, 0, 0,0,0});
-                else if(board[i] < 16 && color == 'b') append_move((move){src, i, 0, 1, 0, 0,0,0});
+                if(board[i] > 16 && color == 'w') append_move((move){src, i, 0, 1, 0, 0,0,0},&move_list_pos);
+                else if(board[i] < 16 && color == 'b') append_move((move){src, i, 0, 1, 0, 0,0,0},&move_list_pos);
                 break;
             }
-            append_move((move){src,i,0,0,0,0,0,0});
+            append_move((move){src,i,0,0,0,0,0,0},&move_list_pos);
             if(i%8==7) break;
         }
     }
@@ -203,11 +202,11 @@ void gen_bishop_moves(int src){
         for(int i = src-7; ; i-=7){
             if(i<0) break;
             if(board[i]){
-                if(board[i] > 16 && color == 'w') append_move((move){src, i, 0, 1, 0, 0,0,0});
-                else if(board[i] < 16 && color == 'b') append_move((move){src, i, 0, 1, 0, 0,0,0});
+                if(board[i] > 16 && color == 'w') append_move((move){src, i, 0, 1, 0, 0,0,0},&move_list_pos);
+                else if(board[i] < 16 && color == 'b') append_move((move){src, i, 0, 1, 0, 0,0,0},&move_list_pos);
                 break;
             }
-            append_move((move){src,i,0,0,0,0,0,0});
+            append_move((move){src,i,0,0,0,0,0,0},&move_list_pos);
             if(i%8==7) break;
         }
     }
@@ -215,11 +214,11 @@ void gen_bishop_moves(int src){
         for(int i = src+7; ; i+=7){
             if(i>63) break;
             if(board[i]){
-                if(board[i] > 16 && color == 'w') append_move((move){src, i, 0, 1, 0, 0,0,0});
-                else if(board[i] < 16 && color == 'b') append_move((move){src, i, 0, 1, 0, 0,0,0});
+                if(board[i] > 16 && color == 'w') append_move((move){src, i, 0, 1, 0, 0,0,0},&move_list_pos);
+                else if(board[i] < 16 && color == 'b') append_move((move){src, i, 0, 1, 0, 0,0,0},&move_list_pos);
                 break;
             }
-            append_move((move){src,i,0,0,0,0,0,0});
+            append_move((move){src,i,0,0,0,0,0,0},&move_list_pos);
             if(i%8==0) break;
         }
     }
@@ -242,28 +241,28 @@ void gen_rook_moves(int src){
             try_append_move((move){src, i, 0, 0, 0, 0,0,0});
             break;
         }
-        append_move((move){src, i, 0, 0, 0, 0,0,0});
+        append_move((move){src, i, 0, 0, 0, 0,0,0},&move_list_pos);
     }
     for(int i = src+8; i<64; i+=8){
         if(board[i]){
             try_append_move((move){src, i, 0, 0, 0, 0,0,0});
             break;
         }
-        append_move((move){src, i, 0, 0, 0, 0,0,0});
+        append_move((move){src, i, 0, 0, 0, 0,0,0},&move_list_pos);
     }
     for(int i = src-1; i>=0 && i/8==src/8; i--){
         if(board[i]){
             try_append_move((move){src, i, 0, 0, 0, 0,0,0});
             break;
         }
-        append_move((move){src, i, 0, 0, 0, 0,0,0});
+        append_move((move){src, i, 0, 0, 0, 0,0,0},&move_list_pos);
     }
     for(int i = src+1; i/8==src/8; i++){
         if(board[i]){
             try_append_move((move){src, i, 0, 0, 0, 0,0,0});
             break;
         }
-        append_move((move){src, i, 0, 0, 0, 0,0,0});
+        append_move((move){src, i, 0, 0, 0, 0,0,0},&move_list_pos);
     }
 }
 
@@ -271,15 +270,15 @@ void gen_rook_moves(int src){
 void try_append_move(move m){
     if(board[m.dest] > 16 && color == 'b') return;
     if(board[m.dest] && board[m.dest] < 16 && color == 'w') return;
-    append_move(m);
+    append_move(m,&move_list_pos);
 }
 
 Metadata backup_metadata;
-void append_move(move m){
+void append_move(move m, move** mempos){
     m.captured_piece = board[m.dest];
 
-    *move_list_pos = m;
-    move_list_pos++;
+    **mempos = m;
+    (*mempos)++;
 
     backup_metadata = board_md;
     execute_move(m);
@@ -289,7 +288,7 @@ void append_move(move m){
     //printf("checking %d to %d, c==b: %d\n",m.src,m.dest,color=='b');
     if(is_in_check(color=='b')){
         //printf("Move %d to %d puts %c in check!\n",m.src, m.dest,color);
-        move_list_pos--;
+        (*mempos)--;
     }
 
     unexecute_move(m);
@@ -426,3 +425,4 @@ int is_in_check(int color_in_check){
 
     return 0;
 }
+

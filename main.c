@@ -15,14 +15,18 @@ enum {WHITE,BLACK};
 
 
 int main(int argc, char* argv[]){
+    piece_values[0] = 1.00; 
+    piece_values[1] = 3.20;
+    piece_values[2] = 3.00;
+    piece_values[3] = 5.00;
+    piece_values[4] = 9.00;
     debug_flag = 0;
     srand(time(NULL));
 
-    
-    //initialize board array & metadata (initiali pos: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1)
-    init_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-   
+    //initialize board array & metadata (initiali pos: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1)
+    init_board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+
     //initialize rendering
     render_init();
     render_board(-1);

@@ -44,7 +44,7 @@ void draw_background(){
             SDL_FillRect(current_surface, &square, (i+j)%2==0 ? LIGHTSPACECOLOR : DARKSPACECOLOR );
         }
     }
-    //SDL_BlitScaled(number_surface, NULL, current_surface, NULL);
+    SDL_BlitScaled(number_surface, NULL, current_surface, NULL);
 }
 
 //public

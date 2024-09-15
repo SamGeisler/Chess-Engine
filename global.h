@@ -45,6 +45,8 @@ int print_time;
 
 int debug_flag;
 
+double piece_values[5];
+
 void quit_game(int winning_color);
 void init_board(char* board_init);
 

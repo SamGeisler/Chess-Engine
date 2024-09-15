@@ -1,5 +1,6 @@
+Issue description for next time:
+
 TODO:
-- Quiescence search
 - Iterative deepening
 - Endgame evaluation modification
 - Transposition table
@@ -11,6 +12,7 @@ TODO:
 DONE:
 - Convert move & metadata struct members to chars
 - Implement unexecute_move
+- Quiescence search & move ordering
 
 ENDGOAL:
 - Achieve an end rating on lichess that is better than 99% of human players in some game format. Right now that appears to be around 2500-2600

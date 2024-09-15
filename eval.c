@@ -7,15 +7,18 @@
 #include "control.h"
 #include "eval.h"
 #include "generate_moves.h"
+#include "generate_moves_ccp.h"
 
-double piece_values[] = {1.00, 3.20, 3.00, 5.00, 9.00};
 
+double quiescence_search(int to_move, double alpha, double beta);
 
 //white wants minimum score, black wants maximum score
-double eval(int to_move, int depth, int max_depth, double alpha, double beta){
+//WHITE IS BETA BLACK IS ALPHA
+double eval(int to_move, int depth, int max_depth, double alpha, double beta, move* best_move){
     Metadata backup_metadata;
     if(depth==max_depth){
-        return end_eval(to_move);
+        //return quiescence_search(to_move, alpha, beta);
+        return quiescence_search(to_move,alpha,beta);
     }
 
     move* moves = (move*)malloc(220*sizeof(move)); int num_moves;
@@ -40,10 +43,11 @@ double eval(int to_move, int depth, int max_depth, double alpha, double beta){
             backup_metadata = board_md;
             execute_move(moves[i]);
 
-            new_eval = eval(1-to_move,depth+1,max_depth,alpha, beta);
+            new_eval = eval(1-to_move,depth+1,max_depth,alpha, beta, best_move);
             
             if(new_eval < optimal_eval){
                 optimal_eval = new_eval;
+                if(depth==1) *best_move = moves[i];
             }
 
             unexecute_move(moves[i]);
@@ -60,10 +64,11 @@ double eval(int to_move, int depth, int max_depth, double alpha, double beta){
             backup_metadata = board_md;
             execute_move(moves[i]);
 
-            new_eval = eval(1-to_move,depth+1,max_depth,alpha, beta);
+            new_eval = eval(1-to_move,depth+1,max_depth,alpha, beta, best_move);
 
             if(new_eval > optimal_eval){
                 optimal_eval = new_eval;
+                if(depth==1) *best_move = moves[i];
             }
 
             unexecute_move(moves[i]);
@@ -76,49 +81,73 @@ double eval(int to_move, int depth, int max_depth, double alpha, double beta){
             if(new_eval > alpha) alpha = new_eval;   
         }
     }
-
-    
-
     free(moves);
     return optimal_eval;
-        
-    
 }
 
-double end_eval(int to_move){
+double end_eval(){
     double piece_count = 0;
     for(int i = 0; i<64; i++){
         if(board[i] && board[i]%8 !=6){
-            int dir = 2*(board[i]/8)-3;
-            piece_count += dir * piece_values[board[i]%8-1];
+            piece_count += (2*((int)board[i]/8)-3) * piece_values[(int)board[i]%8-1];
         }
     }
     return piece_count;
     
 }
 
-/*Quiescence(alpha, beta, to_move){
-    generate_moves()
-    int eval = + or - inf;
-    for(move in moves){
-        if(not is-check-or-capture){
-            continue;
-        } else {
-            normal minimax eval w/ ab pruning
-        }
-    }
-    if (eval = + or - inf){
-        eval = static_eval();
-    }
-    return eval
-}
-*/
 
 //search all checks and captures
+//WHITE IS BETA BLACK IS ALPHA
 double quiescence_search(int to_move, double alpha, double beta){
-    move* all_moves = (move*)malloc(220*sizeof(move)); int num_moves;
-    generate_moves(all_moves, &num_moves,to_move);
 
-    double optimal_eval = (1-(2*to_move)) * INFINITY;
+    double optimal_eval = end_eval();//We assume that capturing will always give a better move than not (this assumes not in Zugzwang)
     double new_eval;
+
+    if(!to_move){//white - minimizing (beta is best alternative)
+        if(optimal_eval <= alpha){//black has a better option than the SE (which we assume as a floor), so we never go down this path
+            return alpha;
+        }
+        if(beta > optimal_eval) beta = optimal_eval;
+    } else {//black - maximizing (alpha is best alternative)
+        if(optimal_eval >= beta){//white has a better option than the SE, so we will never go down this path
+            return beta;
+        }
+        if(alpha < optimal_eval) alpha = optimal_eval;
+    }
+
+
+
+
+    Metadata backup_metadata;
+    move* moves = (move*)malloc(220*sizeof(move)); int num_moves;
+    generate_moves_CCP(moves, &num_moves,to_move);
+
+    for(int i = 0; i<num_moves; i++){
+        backup_metadata = board_md;
+        execute_move(moves[i]);
+
+        new_eval = quiescence_search(1-to_move, alpha, beta);
+
+        if(!to_move){//white - minimizing
+            if(optimal_eval > new_eval) optimal_eval = new_eval;
+        } else {//black - maximizing
+            if(optimal_eval < new_eval) optimal_eval = new_eval;
+        }
+
+        unexecute_move(moves[i]);
+        board_md = backup_metadata;
+
+        //AB pruning
+        if(!to_move){//white - minimizing
+            if(new_eval <= alpha) break;
+            if(new_eval < beta) beta = new_eval;
+        } else {//black - maximizing
+            if(new_eval >= beta) break;
+            if(new_eval > alpha) alpha = new_eval;
+        }
+    }
+
+    free(moves);
+    return optimal_eval;
 }
